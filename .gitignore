@@ -1,0 +1,43 @@
+# 1. Large AI Models & Weights
+*.gguf
+*.bin
+*.pt
+*.pth
+
+# 2. Datasets & Images
+/Train Data/
+/test
+
+# Ignore all images except those needed for Readme
+*.jpg
+*.png
+!LLM_response.jpg
+!Model_selection.jpg
+!Quantization_Dia.png
+
+# 3. Build Outputs & APKs
+/Mobile App/build/
+# Ignore everything in app/build except the specific APK
+/Mobile App/app/build/*
+!/Mobile App/app/build/outputs/
+/Mobile App/app/build/outputs/*
+!/Mobile App/app/build/outputs/apk/
+/Mobile App/app/build/outputs/apk/*
+!/Mobile App/app/build/outputs/apk/debug/
+/Mobile App/app/build/outputs/apk/debug/*
+!/Mobile App/app/build/outputs/apk/debug/app-debug.apk
+*.aab
+
+# 4. Android Studio & Gradle Specifics
+.gradle/
+.idea/
+local.properties
+*.iml
+.cxx/
+
+# 5. Python Environments & Caches
+__pycache__/
+.venv/
+venv/
+env/
+*.pyc
