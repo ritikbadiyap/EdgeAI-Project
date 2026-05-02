@@ -72,6 +72,7 @@ The diagram above illustrates the step-by-step process of converting the heavy P
 2. **Vision Conversion:** The CLIP-ViT encoder and the separated projector are converted together into a 16-bit GGUF vision model (`mmproj-model-f16.gguf`).
 3. **Text Conversion & Quantization:** The LLaMA base model is first converted to an uncompressed 16-bit GGUF file. Then, using `llama-quantize`, it is compressed into highly optimized 4-bit (Q4_K) or 8-bit (Q8_0) formats to fit seamlessly into the limited memory of edge devices.
 
-## 👨‍💻 Author
-**Ritik Kumar Badiya**
-*Department of Computational and Data Sciences (CDS), Indian Institute of Science (IISc) Bangalore*
+## 👨‍💻 Authors
+* **Ritik Kumar Badiya**
+* **Devendra Umbrajkar**
+* **Vikash Singh**
