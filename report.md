@@ -2,12 +2,12 @@
 
 BananaApp is a privacy-preserving, fully offline Android application that leverages state-of-the-art quantized Vision-Language Models (VLMs) to diagnose banana plant diseases directly on consumer mobile hardware. 
 
-By running optimized, multimodal inference locally on the device edge, this tool assists farmers and agricultural researchers in identifying diseases (e.g., Black Sigatoka, Panama Wilt) without requiring cloud compute or an active internet connection.
+By running optimized, multimodal inference locally on the device edge, this tool assists farmers and agricultural researchers in identifying diseases (e.g., Black Sigatoka, Panama) without requiring cloud compute or an active internet connection.
 
 ## 🚀 Key Features
 * **Fully Offline Inference:** No data leaves the device. All image processing and text generation happen locally.
-* **Multimodal Architecture:** Combines a Vision Transformer (ViT) for visual feature extraction with an LLM for conversational diagnostics.
-* **Memory Optimization:** Utilizes 4-bit/8-bit quantization for the text model and FP16 for the vision projector, leveraging memory mapping (`mmap`) to prevent Out-Of-Memory (OOM) crashes on mobile RAM.
+* **Multimodal Architecture:** Combines a CLIP Vision Transformer (ViT) for visual feature extraction with an LLM for conversational diagnostics.
+* **Memory Optimization:** Utilizes 4-bit, 8-bit and 16-bit quantization for the text model and FP16 for the vision projector, leveraging memory mapping (`mmap`) to prevent Out-Of-Memory (OOM) crashes on mobile RAM.
 * **Continuous Chat Memory:** Supports multi-turn conversations, allowing users to ask follow-up questions about treatments and symptoms.
 * **Modern Android UI:** Built with Jetpack Compose for a reactive, smooth, and asynchronous user experience while the C++ backend runs at full capacity.
 
@@ -30,7 +30,7 @@ The compiled Android application (APK) is located in the **`/Mobile App/app/buil
 
 ### 2. Setup the AI Models
 To run the application offline, you need to transfer the quantized model files to your device:
-- Download all **five** required model files from the **`/Mobile models`** folder in this repository.
+- Download all **five** required model files from this [Google Drive Link](https://drive.google.com/drive/folders/1NoRujnl83h4Ups0BOmK1yWlj_jTn-_8F) (due to large file sizes, they are not hosted directly in the repository).
 - Using a file manager or by connecting your phone to a PC, you **must** create the following specific folder on your device's internal storage: `Download/BananaVLM_Models`
 - Copy all five downloaded model files into this exact folder (`Download/BananaVLM_Models`) on your Android device. The app requires the models to be placed in this specific location.
 
@@ -70,7 +70,30 @@ This project is built on the shoulders of incredible open-source AI repositories
 The diagram above illustrates the step-by-step process of converting the heavy PyTorch models into the lightweight GGUF format required for mobile inference:
 1. **Model Splitting:** The original MobileVLM model is run through a surgery script (`llava_surgery.py`) to separate the base LLaMA text model from the vision projector.
 2. **Vision Conversion:** The CLIP-ViT encoder and the separated projector are converted together into a 16-bit GGUF vision model (`mmproj-model-f16.gguf`).
-3. **Text Conversion & Quantization:** The LLaMA base model is first converted to an uncompressed 16-bit GGUF file. Then, using `llama-quantize`, it is compressed into highly optimized 4-bit (Q4_K) or 8-bit (Q8_0) formats to fit seamlessly into the limited memory of edge devices.
+3. **Text Conversion & Quantization:** The LLaMA base model is first converted to an uncompressed 32-bit GGUF file. Then, using `llama-quantize`, it is compressed into highly optimized 4-bit (Q4_K), 8-bit (Q8_0)  and 16-bit (F16) formats to fit seamlessly into the limited memory of edge devices.
+
+## 📱 Edge AI Compression & Performance Metrics
+
+To enable fully offline inference on resource-constrained mobile hardware, aggressive quantization techniques were applied to the base models. By converting the neural network weights from standard 32-bit floating-point to lower-precision formats, we drastically reduced the memory footprint while maintaining the mathematical integrity required for accurate visual diagnostics.
+
+### 1. Payload Compression Ratios
+The following table outlines the total model payload size on the device (incorporating the 595 MB vision backbone alongside the quantized text models) and the resulting effective compression ratios:
+
+| Model Version | Total Payload (Backbone + Text) | Calculation | Effective Compression Ratio |
+| :--- | :--- | :--- | :--- |
+| **Base (32-bit)** | 6186.04 MB | - | **1.00x** (Baseline) |
+| **16-bit (F16)** | 3390.52 MB | 6186.04 / 3390.52 | **1.82x** |
+| **8-bit (Q8_0)** | 2079.80 MB | 6186.04 / 2079.80 | **2.97x** |
+| **4-bit (Q4_K)** | 1429.00 MB | 6186.04 / 1429.00 | **4.33x** |
+
+### 2. On-Device Inference Profiling
+To evaluate the real-world viability of this Edge AI architecture, the quantized models were benchmarked directly on mobile hardware. 
+
+![Performance Metrics](./metric.png)
+
+As demonstrated in the profiling charts above, the quantization pipeline yields critical advantages for edge computing:
+* **Peak RAM Requirements:** The 4-bit model successfully suppresses peak RAM usage to under 2000 MB. This is essential for mobile deployment, preventing the Android OS from triggering an Out-Of-Memory (OOM) kill, which is inevitable with the >4000 MB requirement of the uncompressed 32-bit model.
+* **Throughput & Latency:** Lower-precision formats (specifically 4-bit and 8-bit) demonstrate vastly superior throughput and drastically reduced total Wall Time. This acceleration is what allows the app to stream diagnostic text to the user in real-time without severe lag. 
 
 ## 👨‍💻 Authors
 * **Ritik Kumar Badiya**
