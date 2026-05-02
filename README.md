@@ -72,6 +72,21 @@ The diagram above illustrates the step-by-step process of converting the heavy P
 2. **Vision Conversion:** The CLIP-ViT encoder and the separated projector are converted together into a 16-bit GGUF vision model (`mmproj-model-f16.gguf`).
 3. **Text Conversion & Quantization:** The LLaMA base model is first converted to an uncompressed 32-bit GGUF file. Then, using `llama-quantize`, it is compressed into highly optimized 4-bit (Q4_K), 8-bit (Q8_0)  and 16-bit (F16) formats to fit seamlessly into the limited memory of edge devices.
 
+## ⚙️ Architectural Deployment Flow
+
+![Architectural Deployment Flow](./assets/App_development.png)
+
+The diagram above illustrates the end-to-end architectural pipeline required to deploy the multimodal BananaVLM system onto a mobile edge device. Due to the strict file size limitations of standard Android applications, the deployment process is divided into two distinct, parallel pathways:
+
+**1. The Software Build Pipeline (Vertical Flow)**  
+The core application logic is constructed within the Android Studio environment. The `llama.cpp` inference engine acts as the foundational backend. To integrate this with the mobile operating system, the Android Native Development Kit (NDK) and CMake are utilized to cross-compile the C++ source code into an ARM64-compatible shared library (`.so`). A Java Native Interface (JNI) bridge is then established to expose these low-level memory operations to the Kotlin-based Jetpack Compose frontend. Finally, the Gradle build system packages the compiled native libraries and user interface into a lightweight Android Package Kit (APK), which is sideloaded onto the target device via USB debugging.
+
+**2. The Model Asset Pipeline (Horizontal Flow)**  
+Because the pre-trained neural network weights (GGUF formats for text and the `mmproj` vision projector) are several gigabytes in size, they must bypass the standard APK build process. These raw models are manually transferred directly into the physical device's internal storage file system. 
+
+**3. Edge AI Runtime**  
+At runtime, the installed application requests local storage permissions to locate the manually transferred GGUF weights. The JNI bridge loads these weights directly into the device's RAM, enabling the mobile processor to execute completely offline, multimodal diagnostics without relying on cloud infrastructure.
+
 ## 📱 Edge AI Compression & Performance Metrics
 
 To enable fully offline inference on resource-constrained mobile hardware, aggressive quantization techniques were applied to the base models. By converting the neural network weights from standard 32-bit floating-point to lower-precision formats, we drastically reduced the memory footprint while maintaining the mathematical integrity required for accurate visual diagnostics.
