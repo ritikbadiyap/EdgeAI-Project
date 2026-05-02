@@ -11,10 +11,10 @@
 # Ignore all images except those needed for Readme
 *.jpg
 *.png
-!LLM_response.jpg
-!Model_selection.jpg
-!Quantization_Dia.png
-!metric.png
+!assets/LLM_response.jpg
+!assets/Model_selection.jpg
+!assets/Quantization_Dia.png
+!assets/metric.png
 
 # 3. Build Outputs & APKs
 /Mobile App/build/

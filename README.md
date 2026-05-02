@@ -42,8 +42,8 @@ To run the application offline, you need to transfer the quantized model files t
 - Ask the AI questions about the image and receive real-time, offline diagnostics!
 
 <p align="center">
-  <img src="./Model_selection.jpg" width="35%" alt="Model Selection" />
-  <img src="./LLM_response.jpg" width="35%" alt="LLM Response Example" />
+  <img src="./assets/Model_selection.jpg" width="35%" alt="Model Selection" />
+  <img src="./assets/LLM_response.jpg" width="35%" alt="LLM Response Example" />
 </p>
 
 ## 🛠️ Core Technologies & Acknowledgments
@@ -65,7 +65,7 @@ This project is built on the shoulders of incredible open-source AI repositories
 
 ## 🗜️ Model Quantization & Conversion Pipeline
 
-![Quantization Architecture Diagram](./Quantization_Dia.png)
+![Quantization Architecture Diagram](./assets/Quantization_Dia.png)
 
 The diagram above illustrates the step-by-step process of converting the heavy PyTorch models into the lightweight GGUF format required for mobile inference:
 1. **Model Splitting:** The original MobileVLM model is run through a surgery script (`llava_surgery.py`) to separate the base LLaMA text model from the vision projector.
@@ -89,7 +89,7 @@ The following table outlines the total model payload size on the device (incorpo
 ### 2. On-Device Inference Profiling
 To evaluate the real-world viability of this Edge AI architecture, the quantized models were benchmarked directly on mobile hardware. 
 
-![Performance Metrics](./metric.png)
+![Performance Metrics](./assets/metric.png)
 
 As demonstrated in the profiling charts above, the quantization pipeline yields critical advantages for edge computing:
 * **Peak RAM Requirements:** The 4-bit model successfully suppresses peak RAM usage to under 2000 MB. This is essential for mobile deployment, preventing the Android OS from triggering an Out-Of-Memory (OOM) kill, which is inevitable with the >4000 MB requirement of the uncompressed 32-bit model.
