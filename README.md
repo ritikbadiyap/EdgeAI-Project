@@ -114,3 +114,5 @@ As demonstrated in the profiling charts above, the quantization pipeline yields 
 * **Ritik Kumar Badiya**
 * **Devendra Umbrajkar**
 * **Vikash Singh**
+
+*This project was developed as part of the [Edge AI (2026)](https://www.samy101.com/edge-ai-26/) course.*
