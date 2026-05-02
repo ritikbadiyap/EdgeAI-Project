@@ -35,14 +35,39 @@ During inference, the generation of the output occurs as follows:
 To transition the raw 32-bit floating-point fine-tuned model into a mobile-ready format, the multimodal components had to be isolated, converted, and quantized independently.
 
 ### 2.1 Vision Projector Extraction (The Surgery)
-Because our provided model (Banana_mobilevlm_v2-1.7B_5_epoch) is a composite LMM, the weights linking the vision encoder to the text model must be extracted. We utilized the extraction scripts to perform 'surgery' on the model directory, splitting the LLaVA architecture into its text and multimodal projector constituents.
+Because our provided model (Banana_mobilevlm_v2-1.7B) is a composite LMM, the weights linking the vision encoder to the text model must be extracted. We utilized the extraction scripts to perform 'surgery' on the model directory, splitting the LLaVA architecture into its text and multimodal projector constituents.
+
+**Code Execution:**
+```sh
+python ./tools/mtmd/llava_surgery.py -m path/to/MobileVLM-1.7B
+```
 
 ### 2.2 Vision Encoder Conversion and Dependency Resolution
 Creating the final visual component (mmproj-model-f16.gguf) required fusing the base CLIP model with our extracted LDPv2 projector. During conversion, dependency conflicts were encountered due to PyTorch 2.6 security updates (weights_only=True) which blocked the loading of legacy .bin files. The pipeline was stabilized by forcefully pulling secure .safetensors via the Hugging Face CLI and downgrading the transformers library to version 4.45.0.
 **Architectural Note:** The vision projector is entirely independent of the text model's quantization level. The singular mmproj-model-f16.gguf serves as the universal visual processor for all downstream text models.
 
+**Code Execution (using ldpv2 for V2 architectures):**
+```sh
+python ./tools/mtmd/convert_image_encoder_to_gguf.py \
+    -m path/to/clip-vit-large-patch14-336 \
+    --llava-projector path/to/MobileVLM-1.7B_V2/llava.projector \
+    --output-dir path/to/MobileVLM-1.7B_V2 \
+    --projector-type ldpv2
+```
+
 ### 2.3 Text Model Quantization Scaling
 To evaluate the trade-off between the model's diagnostic accuracy and computational latency, the raw 32-bit baseline (MobileLLaMA-1.4B-Base-F32.gguf) was converted to GGUF format and quantized into multiple target precisions using the llama-quantize utility. This procedure was repeated to generate q4_k_m (4-bit, ~800 MB) and F16 (16-bit, ~3.5 GB) variants, creating a comprehensive suite to benchmark edge performance.
+
+**Code Execution:**
+1. Convert the LLaMA base model to an uncompressed GGUF (F32):
+```sh
+python ./examples/convert_legacy_llama.py path/to/MobileVLM-1.7B --skip-unknown
+```
+
+2. Quantize the resulting F32 model to 4-bit (q4_k):
+```sh
+./llama-quantize path/to/MobileVLM-1.7B/ggml-model-F32.gguf path/to/MobileVLM-1.7B/ggml-model-q4_k.gguf q4_k_s
+```
 
 ![Quantization Architecture Diagram](./assets/Quantization_Dia.png)
 
@@ -100,13 +125,17 @@ The following table serves as the primary data collection framework for on-devic
 ### 4.3 Edge Device Demo:
 <p align="center">
   <img src="./assets/demo.jpeg" width="45%" alt="Demo of Mobile App" />
-  <img src="./assets/MobileApp.png" width="45%" alt="Mobile App" />
 </p>
 
 Here we use the app to describe the image.
 
 ## 5 Conclusion and Future Work
-This report outlines a robust pipeline for deploying domain-specific, fine-tuned LMMs to edge environments. By dissecting the LDPv2 multimodal projector from the foundational text weights, we successfully ported a specialized banana pathology diagnostic tool to an Android environment. As highlighted by the upstream repository contributors, future iterations of this deployment pipeline will focus on:
-* **LDP Projector Optimization:** Refining structure definitions to avoid unnecessary memory rearrangements (reducing ggml_permute_cpy calls) and optimizing operator implementations for ARM CPUs and NVIDIA GPUs.
-* **Backend Acceleration:** Expanding support for non-CPU backends (e.g., Vulkan/OpenCL) for newer operators.
-* **Quality Trade-offs:** Analyzing the diagnostic accuracy of the quantized models against the baseline F32 LORA checkpoint to determine the minimum viable precision for reliable agricultural disease prediction in the field.
+This project successfully establishes a robust, end-to-end pipeline for the edge deployment of a domain-specific Large Multimodal Model (LMM). By systematically dissecting the MobileVLM V2 architecture, extracting the Lightweight Downsample Projector (LDPv2), and employing variable-precision quantization on the language foundation, a specialized agricultural diagnostic tool for banana pathology was effectively ported to an Android ecosystem. 
+
+The deployment of the custom C++ inference engine via the Android Native Development Kit (NDK) proved that complex, multi-gigabyte models can execute entirely offline, achieving viable latency and token generation speeds on mobile hardware without cloud dependency. 
+
+To further enhance the practical utility and computational efficiency of this system in real-world agricultural settings, future iterations will focus on:
+
+* **Comprehensive Metric Evaluation:** Expanding the benchmarking framework beyond pure token throughput to include rigorous diagnostic accuracy metrics, evaluating the quantized models' real-world reliability against the baseline F32 checkpoint.
+* **Quantization-Aware Training (QAT):** Implementing QAT during the LoRA fine-tuning phase rather than relying strictly on post-training quantization. This will help preserve the model's domain-specific reasoning and mitigate accuracy degradation at lower bit-depths (e.g., 4-bit).
+* **Backend Hardware Acceleration:** Transitioning the inference pipeline beyond pure CPU execution. Extending support to mobile-native backends like Vulkan or OpenCL will allow the application to leverage the device's integrated GPU, significantly reducing latency and Time to First Token (TTFT).
