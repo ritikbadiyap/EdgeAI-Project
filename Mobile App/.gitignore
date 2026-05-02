@@ -1,0 +1,15 @@
+# EdgeAI Project Specifics
+Mobile models/
+llama.cpp/             # Usually better to keep dependencies separate
+
+# Android/Gradle Specifics
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
