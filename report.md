@@ -27,7 +27,7 @@ During inference, the generation of the output occurs as follows:
 * **Projection:** These visual embeddings are passed through the Lightweight Downsample Projector (LDPv2), which compresses the number of tokens and enhances them with positional information to produce modality-aligned visual tokens.
 * **Language Processing and Generation:** Concurrently, the input text query is tokenized. The visual tokens and the text tokens are then concatenated and fed into the foundational language model (MobileLLaMA). The final text response is generated in an autoregressive manner, predicting the next token based on both the visual and textual context.
 
-![Model MobileVLM2 Architecture](Model_arch.png)
+![Model MobileVLM2 Architecture](./assets/Model_arch.png)
 *Figure 1: Model MobileVLM2 Architecture*
 
 
@@ -44,7 +44,7 @@ Creating the final visual component (mmproj-model-f16.gguf) required fusing the 
 ### 2.3 Text Model Quantization Scaling
 To evaluate the trade-off between the model's diagnostic accuracy and computational latency, the raw 32-bit baseline (MobileLLaMA-1.4B-Base-F32.gguf) was converted to GGUF format and quantized into multiple target precisions using the llama-quantize utility. This procedure was repeated to generate q4_k_m (4-bit, ~800 MB) and F16 (16-bit, ~3.5 GB) variants, creating a comprehensive suite to benchmark edge performance.
 
-*(Figure 2: Quantization Pipeline omitted in markdown text translation)*
+![Quantization Architecture Diagram](./assets/Quantization_Dia.png)
 
 ## 3 Mobile Application Development and Edge Deployment
 
@@ -58,7 +58,7 @@ The development pipeline was executed in four primary stages, focusing on memory
 * **Asynchronous UI and State Management:** To prevent Application Not Responding (ANR) fatal crashes caused by thread-blocking during intensive inference operations, token generation was fully decoupled from the main UI thread. The C++ layer streams generated tokens back to Android via a custom LlamaCallback interface. The frontend, constructed using Jetpack Compose, captures these tokens using Kotlin Flows, rendering the diagnostic output dynamically in real-time. Additionally, a scoped storage bypass was implemented to copy user-selected images into the application's internal cache, granting the C++ backend direct POSIX file path access.
 * **Integrated Benchmarking Suite:** A dedicated benchmarking module was embedded into the application to facilitate rigorous hardware performance analysis. Governed by independent Kotlin coroutines, this module programmatically iterates through the available model quantization levels (4-bit, 8-bit, 16-bit, and 32-bit). During inference, a secondary tracking coroutine polls the Android ActivityManager to record peak Proportional Set Size (PSS) RAM usage. Alongside Prompt Evaluation Time and Token Generation Speed (Tokens/sec), these metrics are aggregated into a unified interface, providing empirical hardware constraints for edge-deployment viability.
 
-*(Figure 3: Architectural Flow: From Pre-trained Assets to Mobile Edge Deployment omitted)*
+![Architectural Deployment Flow](./assets/App_dia.png)
 
 ## 4 Performance Benchmarking
 
@@ -95,9 +95,14 @@ The following table serves as the primary data collection framework for on-devic
 | 16 bit | 10.93 | 24431.81 | 29857.66 | 2726.55 |
 | 32 bit | 5.76 | 20847.32 | 70490.25 | 4135.00 |
 
-*(Figure 4: Model Performance on Quantized Versions & Figure 5: Demo of Mobile App omitted)*
+![Model Performance on Quantized Versions](./assets/Model_Performance.png)
 
 ### 4.3 Edge Device Demo:
+<p align="center">
+  <img src="./assets/demo.jpeg" width="45%" alt="Demo of Mobile App" />
+  <img src="./assets/MobileApp.png" width="45%" alt="Mobile App" />
+</p>
+
 Here we use the app to describe the image.
 
 ## 5 Conclusion and Future Work

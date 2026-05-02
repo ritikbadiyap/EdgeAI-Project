@@ -46,6 +46,11 @@ To run the application offline, you need to transfer the quantized model files t
   <img src="./assets/LLM_response.jpg" width="35%" alt="LLM Response Example" />
 </p>
 
+## 🧪 Steps to Reproduce
+If you wish to reproduce the environment, quantization pipeline, and application build from scratch:
+1. Install all necessary dependencies by running `pip install -r requirements.txt` from the main project folder.
+2. For an in-depth, detailed guide encompassing the full workflow, please refer to the instructions provided in the **`report.md`** file.
+
 ## 🛠️ Core Technologies & Acknowledgments
 
 This project is built on the shoulders of incredible open-source AI repositories. A massive thanks to the following projects which act as the engine for BananaApp:
@@ -54,6 +59,8 @@ This project is built on the shoulders of incredible open-source AI repositories
    * *Usage:* Found in the `/Quantization` folder and integrated via the NDK. This provides the core C++ inference engine, allowing us to run massive LLMs on ARM-based mobile processors using GGUF quantization formats.
 2. **[Meituan-AutoML/MobileVLM](https://github.com/Meituan-AutoML/MobileVLM)** 
    * *Usage:* Found in the `/MobileVLM` folder. This repository provides the highly efficient vision-language architecture designed specifically for resource-constrained edge devices, seamlessly linking the CLIP vision encoder with the language model.
+3. **Model Training:** A huge acknowledgment to **Arun** for his indispensable efforts and expertise in training the base models powering this project.
+4. **Google Gemini:** Gemini was utilized as an AI coding assistant to accelerate the development of the Android mobile application and streamline the intricate C++/Kotlin integration.
 
 ## 🧠 How It Works Under the Hood
 
