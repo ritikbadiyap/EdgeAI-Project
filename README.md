@@ -23,6 +23,8 @@ Based on the root directory, the project is organized into the following modules
 
 ## 📥 Installation & Usage Guide
 
+🎥 **Video Demonstration:** [Watch the App Demo on Google Drive](https://drive.google.com/file/d/1vPxUAFgPNuGc1rdw3BlWBAu88onR2-Be/view?usp=sharing)
+
 ### 1. Download and Install the App
 The compiled Android application (APK) is located in the **`/Mobile App/app/build/outputs/apk/debug`** directory. 
 - Download the `app-debug.apk` file from this folder to your Android device.
